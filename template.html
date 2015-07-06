@@ -1,0 +1,172 @@
+<!-- This HTML file is a template used to render what's being displayed in the browser -->
+<!-- Python expressions are frequently used throughout this file to process
+conditionals and loops -->
+<html>
+    <head>
+        <!-- Bootstrap and jQuery are used solely for styling purposes -->
+        <link rel="stylesheet" type="text/css" href="/assets/bootstrap.min.css">
+        <script type="text/javascript" src="/assets/jquery-1.11.1.min.js">
+        </script>
+        <script type="text/javascript" src="/assets/bootstrap.min.js">
+        </script>
+        <link type="text/css" rel="stylesheet" href="/assets/template.css">
+        <title>
+            Room: {{room}}
+        </title>
+    </head>
+    <body>
+        <!-- Navbar html is adapted from bootstrap's examples at 
+            http://getbootstrap.com/components/#navbar -->
+        <nav class="navbar navbar-default" role="navigation">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" 
+                        data-toggle="collapse" 
+                        data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="/">YourTunes</a>
+                </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                        <ul class="nav navbar-nav navbar-right">
+                            <li><a href="help">Help</a></li>
+                        </ul>
+                </div>
+            </div>
+        </nav>
+        <div class='container-fluid'>
+            <div id='info' class='col-md-3'>
+                <div class='well'>
+                    <p> <strong>Host</strong>: {{params[0]['host']}} </p>
+                    <p> <strong>Room ID</strong>: {{room}} </p>
+                    <p> <strong>In Room</strong>:
+                        <ul>
+                            {% for user in params[0]['users'] %}    
+                                <li> {{user}} </li>
+                            {% end %}
+                        </ul> 
+                    </p>
+                </div>
+            </div>
+            <div id="current" class='col-md-5'>
+                <div class='well'>
+                  <audio src = 'C:/Users/Kavin/Documents/15112/Term Project/music/Pittsburgh Sound.mp3'></audio>
+                  {% if params[0]['currSong'] %}
+                      {% if params[0]['currSong']['type'] == 'youtube' %}
+                        <embed width = "420" height = "315" 
+                          src = "{{params[0]['currSong']['link']}}">
+                          <p> Currently Playing: {{ params[0]['currSong']['title']}} </p>
+                      {% elif params[0]['currSong']['type'] == 'local' %}
+                        <audio src = "/static/{{params[0]['currSong']['title']}}" controls> </audio>
+                        <p> Currently Playing: {{ params[0]['currSong']['title']}} </p>
+                      {% end %}
+                      <br>
+                  {% else %}
+                    <p> The queue is empty </p>
+                  {% end %}
+                    <form action="skip" method="get">
+                      <input type='submit' value="Skip Song">
+                    </form>
+                  {% if params[0]['queue'] %}
+                    <ul> Songs in Queue:
+                      {% for queueItem in params[0]['queue'] %}
+                        <li> {{queueItem['title']}} </li>
+                      {% end %}
+                    </ul>
+                  {% end %}
+                </div>
+            </div>
+            <!-- Code for clickable buttons is adapted from bootstrap's examples
+              at http://getbootstrap.com/css/#buttons -->
+            <div id = "testTabs" class='col-md-4'>
+              <div role="tabpanel">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" role="tablist">
+                  <li role="presentation" class="active"><a href="#Local" aria-controls="Local" role="tab" data-toggle="tab">Local</a></li>
+                  <li role="presentation"><a href="#Youtube" aria-controls="Youtube" role="tab" data-toggle="tab">Youtube</a></li>
+                  <li role="presentation"><a href="#Playlist" aria-controls="Playlist" role="tab" data-toggle="tab">Playlist</a></li>
+                </ul>
+                <!-- Tab panes -->
+                <div class="tab-content">
+                  <div role="tabpanel" class="tab-pane active" id="Local">
+                    <br>
+                    <form action='searchLocal' method='post'>
+                      Search Available Songs <input type="text" name="searchFor">
+                      <input type='submit' value="Search">
+                    </form>
+                    {% if params[0]['results'] %}
+                      <p> Search Results: </p>
+                      <ul> 
+                      {% for result in params[0]['results'] %}
+                        <li> 
+                          <a href = "add?file={{result['title']}}&type={{result['type']}}">
+                            {{ result['title'] }}
+                          </a>
+                        </li>
+                      {% end %}
+                      </ul>
+                    {% end %}
+                    <ul class='well'> <strong>Songs Available: </strong>
+                      {% for song in params[0]['songs'] %}
+                        <li>
+                          <a href = "add?file={{song['title']}}&type={{song['type']}}">
+                            {{ song['title'] }} 
+                          </a>
+                        </li>
+                      {% end %}
+                    </ul>
+                    <div class="well">
+                    <strong>Upload a Song:</strong>
+                      <form enctype="multipart/form-data" action="upload" method="post">
+                        File: <input type="file" name="filearg">
+                        <br />
+                        <br />
+                        <input type="submit" value="Upload Song" />
+                      </form>
+                    </div>
+                  </div>
+                  <div role="tabpanel" class="tab-pane" id="Youtube">
+                    <br>
+                    <img  class="col-md-3" src="http://www.gstatic.com/youtube/img/logo.png">
+                    <form action = "ytSearch" method = "get" class = 'col-md-9'>
+                      <strong>Search Youtube:</strong> <input type = "text" name = "video">
+                      <input type="submit" value = "Search">
+                    </form>
+                    <div>
+                      {% for video in params[0]['ytSearches'] %}
+                        <div class="col-md-12 well">
+                          <img class='col-md-6' src="{{video['thumbnail']}}">
+                            <a class='col-md-6' href="ytAdd?link={{video['link']}}&title={{video['title']}}"> {{video['title']}} </a>
+                            <br>
+                        </div>
+                      {% end %}
+                    </div>
+                  </div>
+                  <div role="tabpanel" class="tab-pane" id="Playlist">
+                    <br>
+                    <form action="saveplaylist" method="get">
+                      <strong>Playlist Name:</strong> <input type='text' name='savePlaylist'>
+                      <br>
+                      <input type='submit' value="Save Queue as Playlist">
+                    </form>
+                    <strong> Saved Playlists</strong>
+                    <ul class="well"> 
+                      {% for playlist in params[0]['playlists'] %}
+                        <li> 
+                          <a href='loadplaylist?playlistName={{playlist}}'>
+                            {{playlist}} </a>
+                        </li>
+                      {% end %}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+    </body>
+</html>
