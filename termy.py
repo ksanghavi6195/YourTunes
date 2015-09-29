@@ -312,9 +312,7 @@ def run():
 run()
 
 ## Features to Add ##
-# Twilio - Text in song Request
-# allow users to vote on songs
-# support option to stream music (soundcloud)
-# chatroom
-# Search currently contains; needs to be prefix search
- 
+# Twilio API - Text in song Request
+# Allow users to vote on songs, which will auto update song queue
+# Support option to add SoundCloud links
+# Chatroom feature
